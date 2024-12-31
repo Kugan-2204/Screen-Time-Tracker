@@ -17,6 +17,7 @@ import time
 import os
 import platform
 from tkinter import scrolledtext
+import sys
 
 
 conn = sqlite3.connect('app_usage.db')
@@ -30,7 +31,11 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS app_usage (
 cursor.execute("INSERT INTO app_usage (app_name, usage_date, usage_count) VALUES ('{}', '{}', {})".format(str(date.today),"31-12-2024",8))
 conn.commit()
 conn.close()
-
+def get_path(filename):
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, filename)
+    else:
+        return filename
 def display_info_in_scrolled_text(frame, info):
     # Create a scrolled text widget inside the given frame
     
@@ -64,7 +69,7 @@ def log_usage(interval, duration):
     while time.time() < end_time:
         active_window_title = get_active_window_title()
         if active_window_title:
-            x=active_window_title
+            x=correctapp(active_window_title)
             display_info_in_scrolled_text(logframe,x)
             file.write(active_window_title+"\n")
             if  x in fd:
@@ -76,7 +81,7 @@ def log_usage(interval, duration):
 
 #To pick just the app name from the active_window_title
 def correctapp(a):
-    return a.split('- ')[-1]
+    return a.split('-')[-1]
 
 #calculates most used app for showing it in the home_screen
 def mostusedapp():
@@ -321,7 +326,7 @@ if __name__ == "__main__":
         OUTPUT_PATH = Path(__file__).parent
         ASSETS_PATH = OUTPUT_PATH / Path(r"build\assets\frame0")
         def relative_to_assets(path: str) -> Path:
-            return ASSETS_PATH / Path(path)
+            return get_path(ASSETS_PATH / Path(path))
          # Replace with your image file path
 
     # Add the image to a Label widget
